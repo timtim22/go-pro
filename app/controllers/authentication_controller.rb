@@ -1,6 +1,5 @@
 class AuthenticationController < ApplicationController
   skip_before_action :authenticate_request
-  skip_before_action :verify_authenticity_token
 
   def login
     @user = User.find_by(email: params[:email])

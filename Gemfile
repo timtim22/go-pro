@@ -57,3 +57,5 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'jwt'
 gem 'bcrypt', '~> 3.1', '>= 3.1.12'
 gem 'pry', '~> 0.14.1'
+gem 'carrierwave', '~> 2.0'
+gem 'carrierwave-video'

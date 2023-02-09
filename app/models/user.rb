@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   require 'securerandom'
+  has_many :videos
 
   has_secure_password
 

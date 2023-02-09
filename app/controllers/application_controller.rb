@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  require "active_storage/engine"
+  skip_before_action :verify_authenticity_token
   before_action :authenticate_request
 
   def authenticate_request
@@ -11,12 +13,6 @@ class ApplicationController < ActionController::Base
     rescue JWT::DecodeError => e
       render json: { errors: e.message }, status: :unauthorized
     end
-  end
-
-  def current_user
-    header = get_header
-    decoded = JWT.decode(header, Rails.application.secret_key_base)[0]
-    User.find(decoded['user_id'])
   end
 
   def get_header

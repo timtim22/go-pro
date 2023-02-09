@@ -1,6 +1,5 @@
 class UsersController < ApplicationController
   skip_before_action :authenticate_request, only: [:create]
-  skip_before_action :verify_authenticity_token
   before_action :set_user, only: [:show, :destroy]
 
   def index
