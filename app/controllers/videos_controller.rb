@@ -2,7 +2,7 @@ class VideosController < ApplicationController
 
   def show
     @video = Video.find_by(id: params[:id])
-    render json: @video
+    send_file @video.file.path, type: @video.file.content_type, disposition: 'inline'
   end
 
   def create
