@@ -9,9 +9,9 @@ class VideosController < ApplicationController
     @video = @current_user.videos.new(video_params)
     @video.user_id = 1
     if @video.save
-      render json: {message: 'Video uploaded successfully'}, status: :created
+      json_success('Video uploaded successfully', @video)
     else
-      render json: {message: @video.errors.full_messages.join(', ')}, status: :bad_request
+      json_bad_request(@video.errors.full_messages.join(', '))
     end
   end
 
