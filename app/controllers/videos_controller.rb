@@ -7,7 +7,6 @@ class VideosController < ApplicationController
 
   def create
     @video = @current_user.videos.new(video_params)
-    @video.user_id = 1
     if @video.save
       json_success('Video uploaded successfully', @video)
     else
