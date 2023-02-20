@@ -1,0 +1,20 @@
+# Set Redis as the backend for Sidekiq
+:verbose: true
+:concurrency: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+staging:
+  :concurrency: 2
+production:
+  :concurrency: 5
+:queues:
+  - default
+  - mailers
+development:
+  :concurrency: 1
+:pidfile: tmp/pids/sidekiq.pid
+:logfile: ./log/sidekiq.log
+production:
+  :concurrency: 25
+:namespace: sidekiq
+:retry: false
+:dead_timeout: 10s
+:poll_interval: 15
