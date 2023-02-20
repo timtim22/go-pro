@@ -13,7 +13,7 @@ development:
 :pidfile: tmp/pids/sidekiq.pid
 :logfile: ./log/sidekiq.log
 production:
-  :concurrency: 25
+  :concurrency: 3
 :namespace: sidekiq
 :retry: false
 :dead_timeout: 10s
