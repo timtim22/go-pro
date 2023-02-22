@@ -594,7 +594,6 @@ DEPENDENCIES
   carrierwave-video
   dotenv-rails
   fog
-  fog-google
   google-cloud-speech
   google-cloud-speech-v1
   google-cloud-storage
