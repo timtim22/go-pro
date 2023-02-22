@@ -4,8 +4,8 @@ class VideoTranscriptWorker
   def perform(video_id)
     video = Video.find_by(id: video_id)
     speech = Google::Cloud::Speech.speech
-
-    movie = FFMPEG::Movie.new(video.file.current_path)
+    video_url = Rails.env.production? ? video.file.url : video.file.current_path
+    movie = FFMPEG::Movie.new(video_url)
     video_flac = Tempfile.new(["audio", ".flac"])
     movie.transcode(video_flac.path, {audio_codec: "flac"})
     video_file = File.binread video_flac
