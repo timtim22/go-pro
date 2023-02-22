@@ -1,4 +1,4 @@
-if Rails.application.config.active_storage.service.to_sym == :fog
+if Rails.env.production?
   CarrierWave.configure do |config|
     config.storage = :fog
     config.fog_credentials = {
