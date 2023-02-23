@@ -26,8 +26,7 @@ class ApplicationController < ActionController::Base
   end
 
   def json_bad_request(errors = nil)
-    response = generate_response(message: 'Bad Request', errors: errors)
-    render json: response, status: 400
+    render json: {message: errors}, status: 400
   end
 
   def json_forbidden(message = "Forbidden")
