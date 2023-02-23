@@ -1,29 +1,35 @@
 class VideoTranscriptWorker
   include Sidekiq::Worker
+  include VideoTranscriptConfigHelper
 
   def perform(video_id)
-    video = Video.find_by(id: video_id)
-    speech = Google::Cloud::Speech.speech
-    video_url = Rails.env.production? ? video.file.url : video.file.current_path
-    movie = FFMPEG::Movie.new(video_url)
-    video_flac = Tempfile.new(["audio", ".flac"])
-    movie.transcode(video_flac.path, {audio_codec: "flac"})
-    video_file = File.binread video_flac
-    video_content      = { content: video_file }
+    video         = Video.find_by(id: video_id)
+    speech        = Google::Cloud::Speech.speech
+    video_path    = Rails.env.production? ? video.file.url : video.file.current_path
+    movie         = FFMPEG::Movie.new(video_path)
+    audio_file    = Tempfile.new(["audio", ".mp3"])
+    movie.transcode(audio_file.path, audio_codec: 'libmp3lame', audio_bitrate: 64)
 
-    config = { 
-      encoding:          "FLAC",
-      audio_channel_count: 2,
-      sample_rate_hertz: 44100,
-      language_code:     "en-US",
-      enable_word_time_offsets: true
-    }
+    audio_flac    = Tempfile.new(["audio", ".flac"])
+    movie.transcode(audio_flac.path, {audio_codec: "flac"})
 
-    operation = speech.long_running_recognize config: config, audio: video_content
+    binary_file   = File.binread audio_flac
+    file_content = { content: binary_file }
+
+    operation = speech.long_running_recognize config: video_config(movie.audio_channels, movie.audio_sample_rate), audio: file_content
     operation.wait_until_done!
     results = operation.response.results
 
     words_hash = {}
+    get_transcript(results, words_hash)
+    Transcript.create(transcript: words_hash, video: video )
+    audio_file.close
+    audio_file.unlink
+  end
+
+  private
+
+  def get_transcript(results, words_hash)
     results.each do |word|
       word.alternatives.first.words.each do |word|
         if words_hash.has_key?(word)
@@ -33,10 +39,5 @@ class VideoTranscriptWorker
         end
       end
     end
-
-    transcript = Transcript.new(transcript: words_hash, video: video )
-    transcript.save
-    video_flac.close
-    video_flac.unlink
   end
 end
