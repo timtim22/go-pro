@@ -1,8 +1,23 @@
 class VideosController < ApplicationController
 
+
+  def index
+    @videos = @current_user.videos
+    json_success('All videos', map_all_videos(@videos))
+  end
+
   def show
     @video = Video.find_by(id: params[:id])
-    send_file @video.file.path, type: @video.file.content_type, disposition: 'inline'
+    if @video.present?
+      json_success('Successfully fetched video', @video)
+    else
+      json_bad_request('Video does not exist')
+    end
+  end
+
+  def recent_vidoes
+    @videos = @current_user.videos.recent
+    json_success('All recent videos', map_recent_videos(@videos))
   end
 
   def create
@@ -38,9 +53,44 @@ class VideosController < ApplicationController
     end
   end
 
+  def destroy
+    @video = Video.find(params[:id])
+    if @video.destroy
+      json_success('Video deleted successfully')
+    else
+      json_bad_request('something went wrong')
+    end
+  end
+
   private
 
   def video_params
     params.permit(:file)
   end
+
+  def map_all_videos(videos)
+    videos.map do |video|
+      {
+        id: video.id,
+        file: {
+          url: video.file.url
+        },
+        date: video.created_at.strftime("%d-%m-%Y")
+      }
+    end
+  end
+
+  def map_recent_videos(videos)
+    videos.map do |video|
+      {
+        id: video.id,
+        file: {
+          url: video.file.url
+        },
+        date: video.relative_time_since_creation
+      }
+    end
+  end
+
+  
 end
