@@ -2,8 +2,8 @@ class VideosController < ApplicationController
 
 
   def index
-    @videos = @current_user.videos
-    json_success('All videos', map_all_videos(@videos))
+    @videos = @current_user.videos.reverse
+    json_success('All videos', Kaminari.paginate_array(map_all_videos(@videos)).page(params[:page]).per(10))
   end
 
   def show
@@ -15,9 +15,9 @@ class VideosController < ApplicationController
     end
   end
 
-  def recent_vidoes
-    @videos = @current_user.videos.recent
-    json_success('All recent videos', map_recent_videos(@videos))
+  def recent_videos
+    @videos = @current_user.videos.reverse.recent
+    json_success('All recent videos', Kaminari.paginate_array(map_recent_videos(@videos)).page(params[:page]).per(10))
   end
 
   def create
@@ -75,7 +75,7 @@ class VideosController < ApplicationController
         file: {
           url: video.file.url
         },
-        date: video.created_at.strftime("%d-%m-%Y")
+        date: video.created_at.strftime("%d-%m-%Y %H:%M:%S")
       }
     end
   end
