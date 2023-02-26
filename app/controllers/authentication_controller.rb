@@ -7,7 +7,7 @@ class AuthenticationController < ApplicationController
     if password == params[:password]
       token = JsonWebToken.encode(user_id: @user.id)
       time = Time.current + 24.hours.to_i
-      json_success('Signed in successfully.', token: token, expires_at: time.strftime('%m-%d-%Y %H:%M'))
+      json_success('Signed in successfully.', token: token, expires_at: time.strftime('%m-%d-%Y %H:%M'), user_id: @user.id)
     else
       failed_auth_response
     end
