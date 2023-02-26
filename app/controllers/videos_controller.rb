@@ -1,9 +1,12 @@
 class VideosController < ApplicationController
 
 
-  def index
+  def all
     @videos = @current_user.videos.reverse
-    json_success('All videos', Kaminari.paginate_array(map_all_videos(@videos)).page(params[:page]).per(10))
+    total_count = @videos.count
+    data = map_all_videos(@videos)
+    videos = Kaminari.paginate_array(data[:videos])
+    json_success('All videos', { total_count: data[:total_count], videos: videos.page(params[:page]).per(10) })
   end
 
   def show
@@ -15,9 +18,11 @@ class VideosController < ApplicationController
     end
   end
 
-  def recent_videos
-    @videos = @current_user.videos.reverse.recent
-    json_success('All recent videos', Kaminari.paginate_array(map_recent_videos(@videos)).page(params[:page]).per(10))
+  def recent
+    @videos = @current_user.videos.recent.reverse
+    data = map_recent_videos(@videos)
+    videos = Kaminari.paginate_array(data[:videos])
+    json_success('All recent videos', { total_count: data[:total_count], videos: videos.page(params[:page]).per(10) })
   end
 
   def create
@@ -69,28 +74,32 @@ class VideosController < ApplicationController
   end
 
   def map_all_videos(videos)
-    videos.map do |video|
-      {
-        id: video.id,
-        file: {
-          url: video.file.url
-        },
-        date: video.created_at.strftime("%d-%m-%Y %H:%M:%S")
-      }
-    end
+    {
+      total_count: videos.count,
+      videos: videos.map do |video|
+        {
+          id: video.id,
+          file: {
+            url: video.file.url
+          },
+          date: video.created_at.strftime("%d-%m-%Y %H:%M:%S")
+        }
+      end
+    }
   end
 
   def map_recent_videos(videos)
-    videos.map do |video|
-      {
-        id: video.id,
-        file: {
-          url: video.file.url
-        },
-        date: video.relative_time_since_creation
-      }
-    end
+    {
+      total_count: videos.count,
+      videos: videos.map do |video|
+        {
+          id: video.id,
+          file: {
+            url: video.file.url
+          },
+          date: video.relative_time_since_creation
+        }
+      end
+    }
   end
-
-  
 end
