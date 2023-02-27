@@ -28,7 +28,8 @@ class VideosController < ApplicationController
   def create
     @video = @current_user.videos.new(video_params)
     tempfile = params[:file].tempfile
-    binding.remote_pry
+    # binding.pry
+    # binding.remote_pry
     file_url = upload_file_to_cloud_storage(tempfile)
     VideoProcessWorker.perform_async(file_url, JSON.parse(params[:file].to_json), @current_user.id)
     json_success("Your video is being uploaded. Once the upload is complete, you will find it in the 'My Library > Recent Videos' section.")
@@ -73,7 +74,7 @@ class VideosController < ApplicationController
       project_id: ENV['PROJECT_ID'],
       credentials: ENV['GOOGLE_APPLICATION_CREDENTIALS']
     )
-    bucket = storage.bucket(ENV['GOOGLE_CLOUD_STORAGE_BUCKET'])
+    bucket = storage.bucket(ENV['BUCKET_NAME'])
     file_path = "uploads/#{SecureRandom.uuid}_#{file.original_filename}"
     bucket.create_file(file.path, file_path)
     bucket.file(file_path).signed_url(method: 'GET', expires: 1.hour.from_now)
