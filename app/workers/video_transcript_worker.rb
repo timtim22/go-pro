@@ -7,13 +7,13 @@ class VideoTranscriptWorker
     speech        = Google::Cloud::Speech.speech
     video_path    = Rails.env.production? ? video.file.url : video.file.current_path
     movie         = FFMPEG::Movie.new(video_path)
-    audio_file    = Tempfile.new(["audio", ".mp3"])
-    movie.transcode(audio_file.path, audio_codec: 'libmp3lame', audio_bitrate: 128)
+    audio_file    = Tempfile.new(["audio", ".flac"])
+    movie.transcode(audio_file.path, audio_codec: 'flac', audio_bitrate: 64)
 
-    audio_flac    = Tempfile.new(["audio", ".flac"])
-    movie.transcode(audio_flac.path, {audio_codec: "flac"})
+    # audio_flac    = Tempfile.new(["audio", ".flac"])
+    # movie.transcode(audio_flac.path, {audio_codec: "flac"})
 
-    binary_file   = File.binread audio_flac
+    binary_file   = File.binread audio_file
     file_content = { content: binary_file }
 
     operation = speech.long_running_recognize config: video_config(movie.audio_channels, movie.audio_sample_rate), audio: file_content
