@@ -30,7 +30,7 @@ class VideosController < ApplicationController
     file = params[:file]
     file_url = upload_file_to_cloud_storage(file)
     VideoProcessWorker.perform_async(file_url, @current_user.id)
-    json_success("Your video is being uploaded. Once the upload is complete, you will find it in the 'My Library > Recent Videos' section.")
+    json_success("Video is being uploaded. Once completed, You will find it in 'My Library > Recent' section.")
   end
 
   def search_keyword
