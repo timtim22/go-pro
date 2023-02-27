@@ -77,7 +77,7 @@ class VideosController < ApplicationController
     bucket = storage.bucket(ENV['BUCKET_NAME'])
     file_path = "uploads/#{SecureRandom.uuid}_#{file.original_filename}"
     bucket.create_file(file.path, file_path)
-    bucket.file(file_path).signed_url(method: 'GET', expires: 1.hour.from_now.to_datetime)
+    bucket.file(file_path).signed_url(method: 'GET', expires: 1.hour.from_now.to_i)
   end
 
   def video_params
