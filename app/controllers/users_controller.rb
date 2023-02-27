@@ -22,7 +22,7 @@ class UsersController < ApplicationController
 
   def update_user
     if @current_user.update(user_params)
-      json_success('User successfully updated')
+      json_success('User successfully updated', @current_user)
     else
       json_bad_request('Something went wrong')
     end
