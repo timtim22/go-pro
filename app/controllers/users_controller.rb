@@ -20,7 +20,7 @@ class UsersController < ApplicationController
     end
   end
 
-  def update
+  def update_user
     if @current_user.update(user_params)
       json_success('User successfully updated')
     else
@@ -39,6 +39,6 @@ class UsersController < ApplicationController
   end
 
   def set_user
-    @user = User.find(params(:id))
+    @user = User.find(params[:id])
   end
 end
