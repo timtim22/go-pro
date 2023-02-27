@@ -31,7 +31,7 @@ class VideosController < ApplicationController
     # binding.pry
     # binding.remote_pry
     file_url = upload_file_to_cloud_storage(file)
-    VideoProcessWorker.perform_async(file_url, JSON.parse(params[:file].to_json), @current_user.id)
+    VideoProcessWorker.perform_async(file_url, @current_user.id)
     json_success("Your video is being uploaded. Once the upload is complete, you will find it in the 'My Library > Recent Videos' section.")
   end
 
