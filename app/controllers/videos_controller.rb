@@ -108,7 +108,7 @@ class VideosController < ApplicationController
   def get_name(video)
     words = video.file.identifier.split("_").map(&:capitalize).join(" ").split(".").first
     split_words = words.split
-    if split_words.length == 4
+    if split_words.length > 3
       split_words[0..2].join(" ") + " ..."
     else
       words
