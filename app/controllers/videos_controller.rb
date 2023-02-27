@@ -83,7 +83,7 @@ class VideosController < ApplicationController
             url: video.file.url
           },
           date: video.created_at.strftime("%d-%m-%Y %H:%M:%S"),
-          name: video.file.identifier.split("_").map(&:capitalize).join(" ").split(".").first
+          name: get_name(video)
         }
       end
     }
@@ -99,9 +99,19 @@ class VideosController < ApplicationController
             url: video.file.url
           },
           date: video.relative_time_since_creation,
-          name: video.file.identifier.split("_").map(&:capitalize).join(" ").split(".").first
+          name: get_name(video)
         }
       end
     }
+  end
+
+  def get_name(video)
+    words = video.file.identifier.split("_").map(&:capitalize).join(" ").split(".").first
+    split_words = words.split
+    if split_words.length == 4
+      split_words[0..2].join(" ") + " ..."
+    else
+      words
+    end
   end
 end
