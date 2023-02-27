@@ -8,7 +8,7 @@ class VideoTranscriptWorker
     video_path    = Rails.env.production? ? video.file.url : video.file.current_path
     movie         = FFMPEG::Movie.new(video_path)
     audio_file    = Tempfile.new(["audio", ".mp3"])
-    movie.transcode(audio_file.path, audio_codec: 'libmp3lame', audio_bitrate: 64)
+    movie.transcode(audio_file.path, audio_codec: 'libmp3lame', audio_bitrate: 128)
 
     audio_flac    = Tempfile.new(["audio", ".flac"])
     movie.transcode(audio_flac.path, {audio_codec: "flac"})

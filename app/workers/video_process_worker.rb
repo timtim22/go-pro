@@ -22,5 +22,6 @@ class VideoProcessWorker
     # end
 
     video = user.videos.create!(file: file)
+    VideoTranscriptWorker.perform_async(video.id)
   end
 end
