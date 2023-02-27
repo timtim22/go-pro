@@ -1,8 +1,7 @@
 class VideoProcessWorker
   include Sidekiq::Worker
 
-  def perform(tempfile, uploaded_file, user_id, params, file_params, file_params_s)
-    binding.remote_pry
+  def perform(tempfile, uploaded_file, user_id)
     user = User.find user_id
     tempfile = File.new(tempfile)
     if Rails.env.production?

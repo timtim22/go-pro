@@ -27,11 +27,11 @@ class VideosController < ApplicationController
 
   def create
     @video = @current_user.videos.new(video_params)
-    new_tempfile_path = Rails.root.join('public/uploads/tmp', "#{Time.now.to_i}_#{params[:file].original_filename}")
-    FileUtils.mkdir_p(File.dirname(new_tempfile_path))
-    FileUtils.touch(new_tempfile_path)
-    FileUtils.cp(params[:file].tempfile, new_tempfile_path)
-    VideoProcessWorker.perform_async(new_tempfile_path.to_s, JSON.parse(params[:file].to_json), @current_user.id, params, params[:file], params[:file].to_s)
+    # new_tempfile_path = Rails.root.join('public/uploads/tmp', "#{Time.now.to_i}_#{params[:file].original_filename}")
+    # FileUtils.mkdir_p(File.dirname(new_tempfile_path))
+    # FileUtils.touch(new_tempfile_path)
+    # FileUtils.cp(params[:file].tempfile, new_tempfile_path)
+    VideoProcessWorker.perform_async(params[:file].tempfile.to_s, JSON.parse(params[:file].to_json), @current_user.id)
     json_success("Your video is being uploaded. Once the upload is complete, you will find it in the 'My Library > Recent Videos' section.")
   end
 
