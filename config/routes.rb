@@ -6,6 +6,7 @@ Rails.application.routes.draw do
     post :search_keyword, on: :collection
     post :recent, on: :collection
     post :all, on: :collection
+    post :transcript, on: :collection
   end
 
   post '/auth/login', to: 'authentication#login'
