@@ -59,12 +59,12 @@ class VideosController < ApplicationController
   def transcript
     video = Video.find params[:video_id]
     transcript = video.transcript.transcript
-    inverted_hash = transcript.invert
-    new_hash = {}
-    inverted_hash.each do |key, value|
-      new_hash[value] = key.join.to_i
-    end
     if transcript.present?
+      inverted_hash = transcript.invert
+      new_hash = {}
+      inverted_hash.each do |key, value|
+        new_hash[value] = key.join.to_i
+      end
       ordered_hash = new_hash.sort_by { |key, value| value }.to_h
       json_success('Video Transcript', ordered_hash)
     else
