@@ -57,19 +57,19 @@ class VideosController < ApplicationController
   end
 
   def transcript
-    video = Video.find params[:video_id]
+    video = Video.find_by(id: params[:video_id])
+    return json_bad_request('Video does not exist') if video.nil?
+
     transcript = video&.transcript&.transcript
-    if transcript.present?
-      inverted_hash = transcript.invert
-      new_hash = {}
-      inverted_hash.each do |key, value|
-        new_hash[value] = key.join.to_i
-      end
-      ordered_hash = new_hash.sort_by { |key, value| value }.to_h
-      json_success('Video Transcript', ordered_hash)
-    else
-      json_bad_request('Error generating transcript')
+    return json_bad_request('Error generating transcript') if transcript.nil?
+
+    inverted_hash = transcript.invert
+    new_hash = {}
+    inverted_hash.each do |key, value|
+      new_hash[value] = key.join.to_i
     end
+    ordered_hash = new_hash.sort_by { |key, value| value }.to_h
+    json_success('Video Transcript', ordered_hash)
   end
 
   def destroy
