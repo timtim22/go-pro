@@ -58,7 +58,7 @@ class VideosController < ApplicationController
 
   def transcript
     video = Video.find params[:video_id]
-    transcript = video.transcript.transcript
+    transcript = video&.transcript&.transcript
     if transcript.present?
       inverted_hash = transcript.invert
       new_hash = {}
