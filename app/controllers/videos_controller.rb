@@ -28,31 +28,24 @@ class VideosController < ApplicationController
   def create
     @video = @current_user.videos.new(video_params)
     file = params[:file]
-    file_url = upload_file_to_cloud_storage(file)
-    VideoProcessWorker.perform_async(file_url, @current_user.id)
+    VideoCreateService.new(file, @current_user).call
     json_success("Video is being uploaded. Once completed, You will find it in 'My Library > Recent' section.")
   end
 
   def search_keyword
     keyword = params[:keyword]
-    if keyword.chars.count > 3
-      video = @current_user.videos.find_by(id: params[:video_id])
-      if video.present?
-        if video.transcript.present?
-          video_transcript = video&.transcript&.transcript
-          if video_transcript[keyword].present?
-            json_success('Keyword Timestamp', video_transcript[keyword])
-          else
-            json_bad_request('Keyword does not exist')
-          end
-        else
-          json_bad_request('Please wait, Processing video')
-        end
-      else
-        json_bad_request('Video does not exist')
-      end
+    return json_bad_request('Please input atleast 4 character word') unless keyword.chars.count > 3
+
+    video = @current_user.videos.find_by(id: params[:video_id])
+    return json_bad_request('Video does not exist') unless video.present?
+
+    return json_bad_request('Please wait, Processing video') unless video.transcript.present?
+
+    video_transcript = video&.transcript&.transcript
+    if video_transcript[keyword].present?
+      json_success('Keyword Timestamp', video_transcript[keyword])
     else
-      json_bad_request('Please input atleast 4 character word')
+      json_bad_request('Keyword does not exist')
     end
   end
 
@@ -69,7 +62,8 @@ class VideosController < ApplicationController
       new_hash[value] = key.join.to_i
     end
     ordered_hash = new_hash.sort_by { |key, value| value }.to_h
-    json_success('Video Transcript', ordered_hash)
+    result = ordered_hash.map { |key, value| { videoTranscriptword: key.to_s, videoTime: value } }
+    json_success('Video Transcript', result)
   end
 
   def destroy
@@ -82,17 +76,6 @@ class VideosController < ApplicationController
   end
 
   private
-
-  def upload_file_to_cloud_storage(file)
-    storage = Google::Cloud::Storage.new(
-      project_id: ENV['PROJECT_ID'],
-      credentials: ENV['GOOGLE_APPLICATION_CREDENTIALS']
-    )
-    bucket = storage.bucket(ENV['BUCKET_NAME'])
-    file_path = "uploads/#{SecureRandom.uuid}_#{file.original_filename}"
-    bucket.create_file(file.path, file_path)
-    bucket.file(file_path).signed_url(method: 'GET', expires: 1.hour.from_now.to_i)
-  end
 
   def video_params
     params.permit(:file)
