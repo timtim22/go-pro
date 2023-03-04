@@ -1,4 +1,4 @@
-class VideoTranscriptChunksWorker
+class VideoTrancscriptChunksWorker
   include Sidekiq::Worker
   include VideoTranscriptConfigHelper
 
