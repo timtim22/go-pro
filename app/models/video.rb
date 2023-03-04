@@ -5,7 +5,7 @@ class Video < ApplicationRecord
   belongs_to :user
   has_one :transcript
 
-  scope :recent, -> { where('created_at >= ?', 24.hours.ago) }
+  scope :recent, -> { where('videos.created_at >= ?', 24.hours.ago) }
 
   def relative_time_since_creation
     time_ago_in_words(created_at)

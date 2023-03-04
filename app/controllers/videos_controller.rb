@@ -2,7 +2,7 @@ class VideosController < ApplicationController
 
 
   def all
-    @videos = @current_user.videos.reverse
+    @videos = @current_user.videos.joins(:transcript).reverse
     total_count = @videos.count
     data = map_all_videos(@videos)
     videos = Kaminari.paginate_array(data[:videos])
@@ -19,7 +19,7 @@ class VideosController < ApplicationController
   end
 
   def recent
-    @videos = @current_user.videos.recent.reverse
+    @videos = @current_user.videos.joins(:transcript).recent.reverse
     data = map_recent_videos(@videos)
     videos = Kaminari.paginate_array(data[:videos])
     json_success('All recent videos', { total_count: data[:total_count], videos: videos.page(params[:page]).per(10) })

@@ -33,20 +33,33 @@ class VideoTrancscriptChunksWorker
     audio_file.close
     audio_file.unlink
 
-    def split_audio_file(audio_path, chunk_length)
-      chunks = []
-      movie = FFMPEG::Movie.new(audio_path)
-      duration = movie.duration
+    def split_audio_file(audio_path, segment_duration)
+      segments = []
+      output_template = "#{audio_path}-segment-%03d.flac"
     
-      (0..(duration/chunk_length)).each do |i|
-        start_time = i * chunk_length
-        end_time = [start_time + chunk_length, duration].min
-        chunk_path = "#{audio_path}-#{i}.flac"
-        movie.transcode(chunk_path, ss: start_time, t: chunk_length, audio_codec: 'flac', audio_bitrate: 64)
-        chunks << chunk_path
+      # Create FFmpeg input options
+      input_options = {i: audio_path}
+    
+      # Create FFmpeg output options
+      output_options = {
+        f: 'segment',
+        segment_time: 10,
+        segment_format: 'flac',
+        acodec: 'flac',
+        ab: '64k',
+        '%03d': output_template
+      }
+    
+      # Run FFmpeg to split the audio file into segments
+      transcoder = FFMPEG::Transcoder.new(input_options, output_template, output_options)
+      transcoder.run
+    
+      # Collect the output segment paths
+      Dir.glob("#{audio_path}-segment-*.flac").each do |segment_path|
+        segments << segment_path
       end
     
-      chunks
+      segments
     end
 
     def combine_transcripts(transcripts)
@@ -62,6 +75,18 @@ class VideoTrancscriptChunksWorker
       end
     
       full_transcript
+    end
+
+    def get_transcript(results, words_hash)
+      results.each do |word|
+        word.alternatives.first.words.each do |word|
+          if words_hash.has_key?(word)
+            words_hash[word.word] << word.start_time.seconds
+          else
+            words_hash[word.word] = [word.start_time.seconds]
+          end
+        end
+      end
     end
   end
 end
