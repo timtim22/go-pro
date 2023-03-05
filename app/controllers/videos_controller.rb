@@ -56,14 +56,7 @@ class VideosController < ApplicationController
     transcript = video&.transcript&.transcript
     return json_bad_request('Error generating transcript') if transcript.nil?
 
-    inverted_hash = transcript.invert
-    new_hash = {}
-    inverted_hash.each do |key, value|
-      new_hash[value] = key.join.to_i
-    end
-    ordered_hash = new_hash.sort_by { |key, value| value }.to_h
-    result = ordered_hash.map { |key, value| { videoTranscriptword: key.to_s, videoTime: value } }
-    json_success('Video Transcript', result)
+    json_success('Video Transcript', transcript)
   end
 
   def destroy

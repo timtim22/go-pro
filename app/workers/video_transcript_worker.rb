@@ -17,28 +17,21 @@ class VideoTranscriptWorker
     operation.wait_until_done!
     results = operation.response.results
 
-    words_hash = {}
-    get_transcript(results, words_hash)
-    Transcript.create(transcript: words_hash, video: video )
+    words_array = get_transcript(results)
+    Transcript.create(transcript: words_array, video: video, results: results )
     audio_file.close
     audio_file.unlink
   end
 
   private
 
-  def get_transcript(results, words_hash)
+  def get_transcript(results)
+    words_array = []
     results.each do |word|
       word.alternatives.first.words.each do |word|
-        if words_hash.has_key?(word)
-          words_hash[word.word] << word.start_time.seconds
-        else
-          words_hash[word.word] = [word.start_time.seconds]
-        end
+        words_array << { "videoTranscriptword" => word.word, "videoTime" => word.start_time.seconds }
       end
     end
+    words_array
   end
 end
-
-
-    # audio_flac    = Tempfile.new(["audio", ".flac"])
-    # movie.transcode(audio_flac.path, {audio_codec: "flac"})
