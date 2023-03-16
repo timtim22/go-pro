@@ -9,5 +9,9 @@ Rails.application.routes.draw do
     post :transcript, on: :collection
   end
 
+  resources :slices do
+    post :cut, on: :collection
+  end
+
   post '/auth/login', to: 'authentication#login'
 end
