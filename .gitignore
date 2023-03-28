@@ -31,7 +31,7 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
-/config/service_account.json
+# /config/service_account.json
 
 /public/packs
 /public/packs-test
