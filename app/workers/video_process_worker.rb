@@ -20,9 +20,9 @@ class VideoProcessWorker
 
   def get_video_name(file)
     if Rails.env.production? 
-      words = file.original_filename.split("_").map(&:capitalize).join(" ").split(".").first
-    else
       words = file.identifier.split("_").map(&:capitalize).join(" ").split(".").first
+    else
+      words = file.original_filename.split("_").map(&:capitalize).join(" ").split(".").first
     end
     split_words = words.split
     if split_words.length > 3
