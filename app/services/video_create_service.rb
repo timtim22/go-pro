@@ -8,7 +8,7 @@ class VideoCreateService
 
   def call
     if Rails.env.production?
-      file_url = upload_file_to_cloud_storage(@file)
+      file_url = upload_file_to_cloud_storage(@file, get_video_name(file))
       VideoProcessWorker.perform_async(file_url, @current_user.id, nil, get_video_name(@file))
     else
       tempfile = @file.tempfile

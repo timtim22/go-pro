@@ -8,7 +8,7 @@ class VideoTrimWorker
     system("ffmpeg -ss #{start_time} -to #{end_time} -i #{video.file.path} -c copy #{output_path}")
     
     if Rails.env.production?
-      file = upload_file_to_cloud_storage(output_path)
+      file = upload_file_to_cloud_storage(output_path, video.title)
     else
       file = ActionDispatch::Http::UploadedFile.new(
         tempfile: File.new(output_path),
