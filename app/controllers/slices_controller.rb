@@ -73,6 +73,11 @@ class SlicesController < ApplicationController
     @video = Video.find_by(id: params[:video_id])
     return json_bad_request('Video does not exist') if @video.nil?
 
+    start_time = params[:start_time]
+    end_time = params[:end_time]
+    return json_bad_request('start_time and end_time are required fields') if start_time.nil? && end_time.nil?
+
+    VideoTrimWorker.perform_async(@video.id, start_time, end_time)
     json_success("Video slice is currently being processed. Once completed, You will find it in 'My Slices > Recent' section.")
   end
 

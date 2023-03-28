@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_05_073440) do
+ActiveRecord::Schema.define(version: 2023_03_27_170253) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -43,12 +43,22 @@ ActiveRecord::Schema.define(version: 2023_03_05_073440) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
-  create_table "transcripts", force: :cascade do |t|
-    t.json "transcript"
+  create_table "slice_videos", force: :cascade do |t|
+    t.string "file"
+    t.string "title"
+    t.text "description"
     t.integer "video_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "transcripts", force: :cascade do |t|
+    t.json "transcript"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
     t.text "results"
+    t.integer "transcriptable_id"
+    t.string "transcriptable_type"
   end
 
   create_table "users", force: :cascade do |t|

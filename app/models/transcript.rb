@@ -1,3 +1,3 @@
 class Transcript < ApplicationRecord
-  belongs_to :video
+  belongs_to :transcriptable, polymorphic: true
 end

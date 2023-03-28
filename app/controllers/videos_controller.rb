@@ -28,6 +28,8 @@ class VideosController < ApplicationController
   def create
     @video = @current_user.videos.new(video_params)
     file = params[:file]
+    return json_bad_request('File is missing') if file.nil?
+
     VideoCreateService.new(file, @current_user).call
     json_success("Video is being uploaded. Once completed, You will find it in 'My Library > Recent' section.")
   end

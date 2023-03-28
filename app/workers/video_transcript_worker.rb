@@ -2,8 +2,8 @@ class VideoTranscriptWorker
   include Sidekiq::Worker
   include VideoTranscriptConfigHelper
 
-  def perform(video_id)
-    video         = Video.find_by(id: video_id)
+  def perform(video_id, type)
+    video         = type == 'video' ? Video.find_by(id: video_id) : SliceVideo.find_by(id: video_id)
     speech        = Google::Cloud::Speech.speech
     video_path    = Rails.env.production? ? video.file.url : video.file.current_path
     movie         = FFMPEG::Movie.new(video_path)
@@ -18,7 +18,7 @@ class VideoTranscriptWorker
     results = operation.response.results
 
     words_array = get_transcript(results)
-    Transcript.create(transcript: words_array, video: video, results: results )
+    Transcript.create(transcript: words_array, transcriptable: video, results: results)
     audio_file.close
     audio_file.unlink
   end

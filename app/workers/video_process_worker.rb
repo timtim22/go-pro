@@ -12,7 +12,19 @@ class VideoProcessWorker
         type: uploaded_file["content_type"]
       )
     end
-    video = user.videos.create!(file: file)
-    VideoTranscriptWorker.perform_async(video.id)
+    video = user.videos.create!(file: file, title: get_video_name(file))
+    VideoTranscriptWorker.perform_async(video.id, 'video')
+  end
+
+  private
+
+  def get_video_name(file)
+    words = file.original_filename.split("_").map(&:capitalize).join(" ").split(".").first
+    split_words = words.split
+    if split_words.length > 3
+      split_words[0..2].join(" ") + " ..."
+    else
+      words
+    end
   end
 end
