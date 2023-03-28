@@ -1,7 +1,7 @@
 class VideoProcessWorker
   include Sidekiq::Worker
 
-  def perform(file_path, user_id, uploaded_file=nil)
+  def perform(file_path, user_id, uploaded_file=nil, video_name)
     user = User.find user_id
     if Rails.env.production?
       file = URI.open(file_path)
@@ -12,23 +12,7 @@ class VideoProcessWorker
         type: uploaded_file["content_type"]
       )
     end
-    video = user.videos.create!(file: file, title: get_video_name(file))
+    video = user.videos.create!(file: file, title: video_name)
     VideoTranscriptWorker.perform_async(video.id, 'video')
-  end
-
-  private
-
-  def get_video_name(file)
-    if Rails.env.production? 
-      words = file.identifier.split("_").map(&:capitalize).join(" ").split(".").first
-    else
-      words = file.original_filename.split("_").map(&:capitalize).join(" ").split(".").first
-    end
-    split_words = words.split
-    if split_words.length > 3
-      split_words[0..2].join(" ") + " ..."
-    else
-      words
-    end
   end
 end
