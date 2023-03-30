@@ -4,7 +4,6 @@ class VideoTrimWorker
   def perform(video_id, start_time, end_time)
     video = Video.find_by(id: video_id)
     if Rails.env.production?
-      trimmed_video_file = File.open(output_path)
       storage = Google::Cloud::Storage.new(
         project_id: ENV['PROJECT_ID'],
         credentials: ENV['GOOGLE_APPLICATION_CREDENTIALS']
