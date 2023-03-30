@@ -26,5 +26,9 @@ class VideoTrimWorker
     end
     slice_video = SliceVideo.create(file: file, video: video, title: video.title)
     VideoTranscriptWorker.perform_async(slice_video.id, 'slice_video')
+    if Rails.env.production?
+      File.delete current_file_path
+      File.delete output_file_path
+    end
   end
 end
