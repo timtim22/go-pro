@@ -3,6 +3,7 @@ class SliceVideo < ApplicationRecord
   mount_uploader :file, VideoUploader
 
   belongs_to :video
+  belongs_to :user
   has_one :transcript, as: :transcriptable
 
   scope :recent, -> { where('slice_videos.created_at >= ?', 24.hours.ago) }
