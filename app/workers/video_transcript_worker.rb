@@ -9,6 +9,7 @@ class VideoTranscriptWorker
     movie         = FFMPEG::Movie.new(video_path)
     audio_file    = Tempfile.new(["audio", ".flac"])
     movie.transcode(audio_file.path, audio_codec: 'flac', audio_bitrate: 44100)
+    video.update(duration: movie.duration) if type == 'video'
 
     binary_file   = File.binread(audio_file)
     file_content = { content: binary_file }

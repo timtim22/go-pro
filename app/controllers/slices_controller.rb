@@ -53,11 +53,30 @@ class SlicesController < ApplicationController
     end_time = params[:end_time]
     return json_bad_request('start_time and end_time are required fields') if start_time.nil? && end_time.nil?
 
-    VideoTrimWorker.perform_async(@video.id, start_time, end_time)
+    return json_bad_request('start_time cannot be greater than end_time') if invalid_start_time_check(start_time, end_time)
+
+    return json_bad_request('end_time cannot be greater than the video duration') if max_duration_check(end_time, @video.duration)
+
+    VideoTrimWorker.perform_async(@video.id, start_time, end_time, @current_user.id)
     json_success("Video slice is currently being processed. Once completed, You will find it in 'My Slices > Recent' section.")
   end
 
   private
+
+  def max_duration_check(end_time, duration)
+    hours, minutes, seconds = end_time.split(':').map(&:to_i)
+    total_seconds = (hours * 3600) + (minutes * 60) + seconds
+    time_in_decimal = total_seconds.to_f.round(6)
+
+    time_in_decimal > duration
+  end
+
+  def invalid_start_time_check(start_time, end_time)
+    start_seconds = Time.parse(start_time).seconds_since_midnight
+    end_seconds = Time.parse(end_time).seconds_since_midnight
+
+    start_seconds > end_seconds
+  end
 
   def map_all_videos(videos)
     {
