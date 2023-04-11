@@ -3,6 +3,6 @@ class Audio < ApplicationRecord
   mount_uploader :file, AudioUploader
 
   has_one :transcript, as: :transcriptable
-  has_one :video
+  belongs_to :video
 
 end

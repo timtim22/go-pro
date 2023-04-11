@@ -3,7 +3,7 @@ module VideoTranscriptConfigHelper
 
   def video_config(channel, rate_hertz)
     { 
-      encoding:            "FLAC",
+      encoding:            "LINEAR16",
       audio_channel_count: channel,
       sample_rate_hertz:   rate_hertz,
       language_code:       "en-US",
