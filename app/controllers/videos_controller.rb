@@ -30,12 +30,16 @@ class VideosController < ApplicationController
     file = params[:file]
     return json_bad_request('File is missing') if file.nil?
 
-    temp_file = Tempfile.new(["uploaded_video", ".mp4"])
-    temp_file.binmode
-    temp_file.write(file.read)
-    temp_file.rewind
-
-    VideoCreateWorker.perform_async(temp_file.path, @current_user.id, get_video_name(file))
+    if Rails.env.production?
+      temp_file = upload_file_to_cloud_storage(file, folder: "temp")
+    else
+      temp_file = Tempfile.new(["uploaded_video", ".mp4"])
+      temp_file.binmode
+      temp_file.write(file.read)
+      temp_file.rewind
+      file_path = temp_file.path
+    end
+    VideoCreateWorker.perform_async(temp_file, @current_user.id, get_video_name(file))
     json_success("Video is being uploaded. Once completed, You will find it in 'My Library > Recent' section.")
   end
 
