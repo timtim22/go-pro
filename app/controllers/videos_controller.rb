@@ -1,5 +1,5 @@
 class VideosController < ApplicationController
-
+  include CloudStorageHelper
 
   def all
     @videos = @current_user.videos.joins(:transcript).reverse
