@@ -5,7 +5,7 @@ module CloudStorageHelper
       credentials: ENV['GOOGLE_APPLICATION_CREDENTIALS']
     )
     bucket = storage.bucket(ENV['BUCKET_NAME'])
-    file_path = "#{folder}/#{SecureRandom.uuid}_#{file.original_filename}"
+    file_path = "#{folder}/#{SecureRandom.uuid}_#{Time.now.to_i}"
     bucket.create_file(file.path, file_path)
     bucket.file(file_path).signed_url(method: 'GET', expires: 1.hour.from_now.to_i)
   end
