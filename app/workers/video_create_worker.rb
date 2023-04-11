@@ -5,13 +5,13 @@ class VideoCreateWorker
     user = User.find user_id
 
     if Rails.env.production?
-      temp_file = URI.open(file_path)
       temp_file_name = File.basename(file_path)
       new_tempfile_path = Rails.root.join('tmp', "#{Time.now.to_i}_#{temp_file_name}")
-      FileUtils.mkdir_p(File.dirname(new_tempfile_path))
-      FileUtils.touch(new_tempfile_path)
-      FileUtils.cp(temp_file, new_tempfile_path)
-
+      File.open(new_tempfile_path, 'wb') do |file|
+        file.write URI.open(file_path).read
+      end
+      temp_file = File.open(new_tempfile_path, 'r')
+      
       file = upload_file_to_cloud_storage(temp_file)
     else
       temp_file = File.open(file_path, 'r')
@@ -30,17 +30,5 @@ class VideoCreateWorker
 
     video = user.videos.create!(file: file, title: video_name)
     VideoTranscriptWorker.perform_async(video.id, 'video')
-  end
-
-  private
-
-  def get_video_name(file)
-    words = file.original_filename.split("_").map(&:capitalize).join(" ").split(".").first
-    split_words = words.split
-    if split_words.length > 3
-      split_words[0..2].join(" ") + " ..."
-    else
-      words
-    end
   end
 end
