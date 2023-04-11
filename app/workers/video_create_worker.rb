@@ -1,5 +1,6 @@
 class VideoCreateWorker
   include Sidekiq::Worker
+  include CloudStorageHelper
 
   def perform(file_path, user_id, video_name)
     user = User.find user_id
