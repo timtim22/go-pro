@@ -56,8 +56,8 @@ class VideoTranscriptWorker
       thread_pool.wait_for_termination
     end
 
-    words_array = get_transcript(results)
     Transcript.create(transcript: words_array, transcriptable: video, results: results)
+    audio.destroy
   end
 
   private
