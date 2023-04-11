@@ -3,16 +3,18 @@ class VideoCreateWorker
 
   def perform(file_path, user_id, video_name)
     user = User.find user_id
-    temp_file = File.open(file_path, 'r')
-    temp_file_name = File.basename(file_path)
-    new_tempfile_path = Rails.root.join('tmp', "#{Time.now.to_i}_#{temp_file_name}")
-    FileUtils.mkdir_p(File.dirname(new_tempfile_path))
-    FileUtils.touch(new_tempfile_path)
-    FileUtils.cp(file_path, new_tempfile_path)
 
     if Rails.env.production?
-      file = upload_file_to_cloud_storage(new_tempfile_path)
+      temp_file = URI.open(file_path)
+      file = upload_file_to_cloud_storage(temp_file)
     else
+      temp_file = File.open(file_path, 'r')
+      temp_file_name = File.basename(file_path)
+      new_tempfile_path = Rails.root.join('tmp', "#{Time.now.to_i}_#{temp_file_name}")
+      FileUtils.mkdir_p(File.dirname(new_tempfile_path))
+      FileUtils.touch(new_tempfile_path)
+      FileUtils.cp(file_path, new_tempfile_path)
+
       file = ActionDispatch::Http::UploadedFile.new(
         tempfile: File.new(new_tempfile_path),
         filename: "original_filename",
