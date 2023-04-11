@@ -30,7 +30,12 @@ class VideosController < ApplicationController
     file = params[:file]
     return json_bad_request('File is missing') if file.nil?
 
-    VideoCreateService.new(file, @current_user).call
+    temp_file = Tempfile.new(["uploaded_video", ".mp4"])
+    temp_file.binmode
+    temp_file.write(file.read)
+    temp_file.rewind
+
+    VideoCreateWorker.perform_async(temp_file.path, @current_user.id, get_video_name(file))
     json_success("Video is being uploaded. Once completed, You will find it in 'My Library > Recent' section.")
   end
 
@@ -54,6 +59,16 @@ class VideosController < ApplicationController
   end
 
   private
+
+  def get_video_name(file)
+    words = file.original_filename.split("_").map(&:capitalize).join(" ").split(".").first
+    split_words = words.split
+    if split_words.length > 4
+      split_words[0..3].join(" ") + " ..."
+    else
+      words
+    end
+  end
 
   def video_params
     params.permit(:file)

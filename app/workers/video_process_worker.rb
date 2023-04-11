@@ -8,8 +8,8 @@ class VideoProcessWorker
     else
       file = ActionDispatch::Http::UploadedFile.new(
         tempfile: File.new(file_path),
-        filename: uploaded_file["original_filename"],
-        type: uploaded_file["content_type"]
+        filename: "original_filename",
+        type: "content_type"
       )
     end
     video = user.videos.create!(file: file, title: video_name)
