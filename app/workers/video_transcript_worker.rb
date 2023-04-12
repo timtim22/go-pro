@@ -10,10 +10,10 @@ class VideoTranscriptWorker
     movie         = FFMPEG::Movie.new(video_path)
 
     audio = Audio.new
-    audio_file  = CarrierWave::SanitizedFile.new(File.join(Rails.root, "tmp", "audio_#{Time.now.to_i}.wav"))
+    audio_file     = CarrierWave::SanitizedFile.new(File.join(Rails.root, "tmp", "audio_#{Time.now.to_i}.wav"))
     movie.transcode(audio_file.path, audio_codec: 'pcm_s16le', audio_bitrate: 44100)
-    audio.file  = audio_file
-    audio.video = video
+    audio.file     = audio_file
+    audio.video_id = video.id
     audio.save!
 
     video.update(duration: movie.duration) if type == 'video'
