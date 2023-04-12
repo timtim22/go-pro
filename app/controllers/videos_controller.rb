@@ -47,7 +47,7 @@ class VideosController < ApplicationController
     video = Video.find_by(id: params[:video_id])
     return json_bad_request('Video does not exist') if video.nil?
 
-    transcript = video&.transcript&.transcript
+    transcript = video&.transcript&.transcript.sort_by { |word| word["videoTime"] }
     return json_bad_request('Error generating transcript') if transcript.nil?
 
     json_success('Video Transcript', transcript)
