@@ -21,7 +21,7 @@ class VideoTranscriptWorker
     chunk_duration = 20
     total_chunks = (movie.duration / chunk_duration).ceil
     words_array = []
-    results = ""
+    # results = ""
 
     thread_pool = Concurrent::FixedThreadPool.new(10)
     mutex = Mutex.new
@@ -40,7 +40,7 @@ class VideoTranscriptWorker
       
           operation = speech.long_running_recognize config: video_config(movie.audio_channels, movie.audio_sample_rate), audio: file_content
           operation.wait_until_done!
-          results.concat operation.response.results
+          results = operation.response.results
       
           chunk_words_array = get_transcript(results, start_time)
           mutex.synchronize { words_array.concat(chunk_words_array) }
@@ -58,7 +58,7 @@ class VideoTranscriptWorker
       thread_pool.wait_for_termination
     end
 
-    Transcript.create(transcript: words_array, transcriptable: video, results: results)
+    Transcript.create(transcript: words_array, transcriptable: video, results: 'results')
     audio.destroy
   end
 
