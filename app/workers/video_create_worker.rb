@@ -7,7 +7,8 @@ class VideoCreateWorker
 
     if Rails.env.production?
       temp_file = URI.open(file_path)
-      file      = upload_file_to_cloud_storage(temp_file, folder: "uploads")
+      original_filename = File.basename(file_path)
+      file      = upload_file_to_cloud_storage(temp_file, original_filename, folder: "uploads")
       temp_file.close
     else
       temp_file = File.open(file_path, 'r')

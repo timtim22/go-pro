@@ -31,7 +31,7 @@ class VideosController < ApplicationController
     return json_bad_request('File is missing') if file.nil?
 
     if Rails.env.production?
-      temp_file = upload_file_to_cloud_storage(file, folder: "temp")
+      temp_file = upload_file_to_cloud_storage(file, file.original_filename, folder: "temp")
     else
       temp_file = Tempfile.new(["uploaded_video", ".mp4"])
       temp_file.binmode

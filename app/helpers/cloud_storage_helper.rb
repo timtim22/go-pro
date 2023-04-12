@@ -1,11 +1,11 @@
 module CloudStorageHelper
-  def upload_file_to_cloud_storage(file, folder: "uploads")
+  def upload_file_to_cloud_storage(file, original_filename, folder: "uploads")
     storage = Google::Cloud::Storage.new(
       project_id: ENV['PROJECT_ID'],
       credentials: ENV['GOOGLE_APPLICATION_CREDENTIALS']
     )
     bucket = storage.bucket(ENV['BUCKET_NAME'])
-    file_path = "#{folder}/#{SecureRandom.uuid}_#{Time.now.to_i}"
+    file_path = "#{folder}/#{SecureRandom.uuid}_#{original_filename}"
     bucket.create_file(file.path, file_path)
     bucket.file(file_path).signed_url(method: 'GET', expires: 1.hour.from_now.to_i)
   end
