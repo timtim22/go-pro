@@ -2,7 +2,7 @@ class VideosController < ApplicationController
   include CloudStorageHelper
 
   def all
-    @videos = @current_user.videos.reverse
+    @videos = @current_user.videos.joins(:transcript).reverse
     total_count = @videos.count
     data = map_all_videos(@videos)
     videos = Kaminari.paginate_array(data[:videos])
@@ -19,7 +19,7 @@ class VideosController < ApplicationController
   end
 
   def recent
-    @videos = @current_user.videos.recent.reverse
+    @videos = @current_user.videos.joins(:transcript).recent.reverse
     data = map_recent_videos(@videos)
     videos = Kaminari.paginate_array(data[:videos])
     json_success('All recent videos', { total_count: data[:total_count], videos: videos.page(params[:page]).per(10) })
@@ -31,7 +31,7 @@ class VideosController < ApplicationController
     return json_bad_request('File is missing') if file.nil?
 
     if Rails.env.production?
-      temp_file = upload_file_to_cloud_storage(file, file.original_filename, folder: "temp")
+      temp_file = upload_file_to_cloud_storage(file)
     else
       temp_file = Tempfile.new(["uploaded_video", ".mp4"])
       temp_file.binmode
@@ -48,7 +48,7 @@ class VideosController < ApplicationController
     return json_bad_request('Video does not exist') if video.nil?
 
     transcript = video&.transcript&.transcript.sort_by { |word| word["videoTime"] }
-    return json_bad_request('Please wait, generating a transcript may take a few seconds to minutes depending on the video length. Click the refresh icon to check for the transcript.') if transcript.nil?
+    return json_bad_request('Error generating transcript') if transcript.nil?
 
     json_success('Video Transcript', transcript)
   end

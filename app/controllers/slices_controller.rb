@@ -1,7 +1,7 @@
 class SlicesController < ApplicationController
 
   def all
-    @slice_videos = @current_user.slice_videos.reverse
+    @slice_videos = @current_user.slice_videos.joins(:transcript).reverse
     total_count = @slice_videos.count
     data = map_all_videos(@slice_videos)
     videos = Kaminari.paginate_array(data[:videos])
@@ -18,7 +18,7 @@ class SlicesController < ApplicationController
   end
 
   def recent
-    @slice_videos = @current_user.slice_videos.recent.reverse
+    @slice_videos = @current_user.slice_videos.joins(:transcript).recent.reverse
     data = map_recent_videos(@slice_videos)
     videos = Kaminari.paginate_array(data[:videos])
     json_success('All recent videos', { total_count: data[:total_count], videos: videos.page(params[:page]).per(10) })
@@ -29,7 +29,7 @@ class SlicesController < ApplicationController
     return json_bad_request('Video does not exist') if slice_video.nil?
 
     transcript = slice_video&.transcript&.transcript.sort_by { |word| word["videoTime"] }
-    return json_bad_request('Please wait, generating a transcript may take a few seconds to minutes depending on the video length. Click the refresh icon to check for the transcript.') if transcript.nil?
+    return json_bad_request('Error generating transcript') if transcript.nil?
 
     json_success('Video Transcript', transcript)
   end

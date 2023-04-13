@@ -6,11 +6,7 @@ class VideoCreateWorker
     user = User.find user_id
 
     if Rails.env.production?
-      temp_file         = URI.open(file_path)
-      original_filename = File.basename(file_path)
-      file_url          = upload_file_to_cloud_storage(temp_file, original_filename, folder: "uploads")
-      file              = URI.open(file_url)
-      temp_file.close
+      file = URI.open(file_path)
     else
       temp_file = File.open(file_path, 'r')
       temp_file_name = File.basename(file_path)
