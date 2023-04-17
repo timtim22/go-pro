@@ -3,6 +3,7 @@ class SliceVideo < ApplicationRecord
   mount_uploader :file, VideoUploader
 
   belongs_to :video
+  belongs_to :audio
   belongs_to :user
   has_one :transcript, as: :transcriptable
 

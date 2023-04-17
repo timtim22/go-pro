@@ -13,7 +13,7 @@ class VideoTranscriptWorker
     audio_file     = CarrierWave::SanitizedFile.new(File.join(Rails.root, "tmp", "audio_#{Time.now.to_i}.wav"))
     movie.transcode(audio_file.path, audio_codec: 'pcm_s16le', audio_bitrate: 44100)
     audio.file     = audio_file
-    audio.video_id = video.id
+    type == 'video' ? audio.video_id = video.id : audio.slice_video_id = video.id
     audio.save!
 
     video.update(duration: movie.duration) if type == 'video'
@@ -64,11 +64,24 @@ class VideoTranscriptWorker
 
   private
 
+  def format_seconds_to_time(seconds)
+    Time.at(seconds).utc.strftime("%H:%M:%S")
+  end
+  
   def get_transcript(results, start_time)
     words_array = []
     results.each do |word|
       word.alternatives.first.words.each do |word|
-        words_array << { "videoTranscriptword" => word.word, "videoTime" => word.start_time.seconds + start_time}
+        video_time = word.start_time.seconds + start_time
+        start_time_format = format_seconds_to_time(video_time)
+        end_time_format = format_seconds_to_time(video_time + 15)
+        
+        words_array << {
+          "videoTranscriptword" => word.word,
+          "videoTime" => video_time,
+          "startTimeFormat" => start_time_format,
+          "endTimeFormat" => end_time_format
+        }
       end
     end
     words_array
