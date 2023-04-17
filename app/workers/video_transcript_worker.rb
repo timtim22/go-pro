@@ -15,8 +15,9 @@ class VideoTranscriptWorker
     audio.file     = audio_file
     type == 'video' ? audio.video_id = video.id : audio.slice_video_id = video.id
     audio.save!
+    duration = movie.duration
 
-    video.update(duration: movie.duration) if type == 'video'
+    video.update(duration: duration) if type == 'video'
 
     chunk_duration = 20
     total_chunks = (movie.duration / chunk_duration).ceil
@@ -42,7 +43,7 @@ class VideoTranscriptWorker
           operation.wait_until_done!
           results = operation.response.results
       
-          chunk_words_array = get_transcript(results, start_time)
+          chunk_words_array = get_transcript(results, start_time, duration)
           mutex.synchronize { words_array.concat(chunk_words_array) }
           
           chunk_file.close
@@ -68,13 +69,14 @@ class VideoTranscriptWorker
     Time.at(seconds).utc.strftime("%H:%M:%S")
   end
   
-  def get_transcript(results, start_time)
+  def get_transcript(results, start_time, duration)
     words_array = []
     results.each do |word|
       word.alternatives.first.words.each do |word|
         video_time = word.start_time.seconds + start_time
         start_time_format = format_seconds_to_time(video_time)
-        end_time_format = format_seconds_to_time(video_time + 15)
+        end_time = [video_time + 15, duration].min
+        end_time_format = format_seconds_to_time(end_time)
         
         words_array << {
           "videoTranscriptword" => word.word,
