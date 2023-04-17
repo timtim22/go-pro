@@ -17,6 +17,7 @@ class VideoTrimWorker
       `ffmpeg -i #{current_file_path} -ss #{start_time} -t #{end_time} -async 1 #{output_file_path}`
 
       file = URI.open(output_file_path)
+      slice_video = SliceVideo.create!(file: file, video: video, title: video.title, user: user)
     else
       output_path = "#{Rails.root}/tmp/trimmed_#{Time.now.to_i}_#{video.id}.mp4"
       system("ffmpeg -ss #{start_time} -to #{end_time} -i #{video.file.path} -c copy #{output_path}")
@@ -26,8 +27,9 @@ class VideoTrimWorker
         filename: video.title,
         type: 'mp4'
       )
+      slice_video = SliceVideo.create!(file: file, video: video, title: video.title, user: user)
     end
-    slice_video = SliceVideo.create(file: file, video: video, title: video.title, user: user)
+
     VideoTranscriptWorker.perform_async(slice_video.id, 'slice_video')
     if Rails.env.production?
       File.delete current_file_path
