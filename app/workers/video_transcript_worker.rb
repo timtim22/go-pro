@@ -89,3 +89,28 @@ class VideoTranscriptWorker
     words_array
   end
 end
+
+
+def get_sentences_with_keyword(transcript)
+  sentences = []
+  current_sentence = []
+  
+  transcript.each do |word_data|
+    word = word_data["videoTranscriptword"]
+    current_sentence << word
+
+    if word[-1] == '.' || word[-1] == '?' || word[-1] == '!'
+      sentence = current_sentence.join(' ')
+      # if sentence.include?(keyword)
+        sentences << {
+          'sentence' => sentence,
+          'startTimeFormat' => word_data["startTimeFormat"],
+          'endTimeFormat' => word_data["endTimeFormat"]
+        }
+      # end
+      current_sentence = []
+    end
+  end
+
+  sentences
+end
