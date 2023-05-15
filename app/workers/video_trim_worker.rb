@@ -7,7 +7,7 @@ class VideoTrimWorker
     if Rails.env.production?
       storage = Google::Cloud::Storage.new(
         project_id: ENV['PROJECT_ID'],
-        credentials: ENV['GOOGLE_APPLICATION_CREDENTIALS']
+        credentials: decoded_google_credentials
       )
       bucket = storage.bucket(ENV['BUCKET_NAME'])
       bucket_file = bucket.file(video.file.path)
